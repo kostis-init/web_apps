@@ -1,5 +1,5 @@
 # web_apps
-3 cooperating apps. Web creator, web server, web crawler
+3 cooperating apps. Web creator, web server, web crawler (Using threads)
 
 webcreator.sh: Only absolute paths for root_dir. Do not put ‘/’ in the end of root_dir.Example:
 $ cd ./src
