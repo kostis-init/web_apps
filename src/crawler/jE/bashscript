@@ -1,0 +1,87 @@
+#!/bin/bash
+
+if [ -z "$(ls -A log/)" ]; then
+   echo "Empty log directory"
+else
+#1.Total number of keywords searched (duplicate or non-found keywords do not count)
+array=()
+var=0
+#for all log files
+for file in log/*
+do
+	#read line, save it in words array
+	while read -a words
+	do
+		#only search keywords
+		if [ "${words[6]}" == "search" ]; then
+			#if there is at least one file containing the keyword
+			if [[ ! -z "${words[10]// }" ]]; then
+				#check if keyword is not in array
+				if [[ ! " ${array[*]} " == *" ${words[8]} "* ]]; then
+					array+=" ${words[8]} "
+					(( var+=1 ))
+				fi
+			fi
+		fi
+	done < ${file}
+done
+echo "Total number of keywords searched succesfully: ${var}"
+
+#2.Keyword most/least frequently found
+max=-1
+min=10000
+maxk=""
+mink=""
+#for every word (find max/min)
+for key in ${array}
+do
+	counter=0;
+	array2=()
+	#for all log files
+	for file in log/*
+	do
+		#read line, save it in words array
+		while read -a words
+		do
+			#only for this keyword
+			if [ "${words[8]}" == "${key}" ]; then
+				
+				#if there is at least one file containing the keyword
+				if [[ ! -z "${words[10]// }" ]]; then
+					
+					#while there are files
+					i=10
+					while [[ ! -z "${words[$i]// }" ]]
+					do
+						#check if file is not in array2
+						if [[ ! " ${array2[*]} " == *" ${words[$i]} "* ]]; then
+							array2+=" ${words[$i]} "
+							(( counter+=1 ))
+						fi
+						(( i+=2 ))
+					done
+				fi
+			fi
+			
+		done < ${file}
+	done
+	
+	#max
+	if [[ "${counter}" -gt "${max}" ]]
+	then
+		max="${counter}"
+		maxk="${key}"
+	fi
+	
+	#min
+	if [[ "${counter}" -lt "${min}" ]]
+	then
+		min="${counter}"
+		mink="${key}"
+	fi
+done
+
+echo "Keyword most  frequently found: ${maxk} [${max}]"
+echo "Keyword least frequently found: ${mink} [${min}]"
+
+fi
